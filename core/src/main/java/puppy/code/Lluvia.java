@@ -11,84 +11,124 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Lluvia {
-    private Array<Rectangle> rainDropsPos;
-    private Array<Integer> rainDropsType;
-    private long lastDropTime;
+    // Variables patrón de ataque
+    private Array<Proyectil> proyectiles;
+    private Array<PatronAtaque> patrones;
+    private PatronAtaque patronActual;
+    private int indicePatron;
+    // Variables de gotas de lluvia
     private Texture gotaBuena;
     private Texture gotaMala;
     private Sound dropSound;
     private Music rainMusic;
+
+    // Zona permitida para las gotas
+    private float minX;
+    private float maxX;
+    private float minY;
+    private float maxY;
+
+    // Tiempo para sumar puntos automáticamente
+    private long ultimoTiempoPuntos;
     
     public Lluvia(Texture gotaBuena, Texture gotaMala, Sound ss, Music mm) {
+        // Inicializar sonidos
         rainMusic = mm;
         dropSound = ss;
+        // Inicializar texturas
         this.gotaBuena = gotaBuena;
         this.gotaMala = gotaMala;
+        // Definir zona de generación de gotas
+        this.minX = 200;
+        this.maxX = 600;
+        this.minY = 400;
+        this.maxY = 400;
+    }
+
+    // Genera una posición aleatoria dentro del área permitida
+    private float[] obtenerPosicionAleatoria() {
+        float x = MathUtils.random(minX, maxX);
+        float y = MathUtils.random(minY, maxY);
+        return new float[]{x, y};
     }
     
     public void crear() {
-        rainDropsPos = new Array<Rectangle>();
-        rainDropsType = new Array<Integer>();
-        crearGotaDeLluvia();
+        proyectiles = new Array<Proyectil>();
+        patrones = new Array<PatronAtaque>();
+
+        // Por ahora, solo se generan gotas de lluvia con un patrón circular simple, con variación en la posición
+        float[] pos = obtenerPosicionAleatoria();
+        patrones.add(new PatronCircular(pos[0], pos[1], 32, 150, 5f, 0.5f, 30f, gotaBuena));
+        
+        // Iniciar el primer patrón
+        indicePatron = 0;
+        patronActual = patrones.get(indicePatron);
+        patronActual.iniciar();
+        ultimoTiempoPuntos = TimeUtils.millis(); // Iniciar el temporizador de puntos
+
 		// Empezar la reproducción de la música de fondo inmediatamente
         rainMusic.setLooping(true);
         rainMusic.play();
     }
     
-    private void crearGotaDeLluvia() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 800-64);
-        raindrop.y = 480;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        rainDropsPos.add(raindrop);
-        // Ver el tipo de gota: 1 = mala, 2 = buena
-        if (MathUtils.random(1,10) < 5)
-            rainDropsType.add(1);
-        else
-            rainDropsType.add(2);
-        lastDropTime = TimeUtils.nanoTime();
-    }
-    
     public boolean actualizarMovimiento(Tarro tarro) {
-        // Generar gotas de lluvia
-        if (TimeUtils.nanoTime() - lastDropTime > 100000000) crearGotaDeLluvia();
+        float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
         
-        // Revisar si las gotas cayeron al suelo o chocaron con el tarro
-        for (int i=0; i < rainDropsPos.size; i++ ) {
-            Rectangle raindrop = rainDropsPos.get(i);
-            raindrop.y -= 300 * Gdx.graphics.getDeltaTime();
-            // Cae al suelo y se elimina
-            if (raindrop.y + 64 < 0) {
-                rainDropsPos.removeIndex(i);
-                rainDropsType.removeIndex(i);
+        // Actualizar patrón actual
+        patronActual.actualizar(delta, proyectiles);
+        
+        // Si el patrón actual ha terminado, pasar al siguiente
+        if (patronActual.estaCompleto()) {
+            patronActual.limpiar();
+            indicePatron = (indicePatron + 1) % patrones.size;
+            patronActual = patrones.get(indicePatron);
+
+            // Antes de iniciar el nuevo patrón, actualizar su posición
+            float[] pos = obtenerPosicionAleatoria();
+            // No necesitamos verificar el tipo de patrón, ya que todos deben implementar setPosition
+            patronActual.setPosition(pos[0], pos[1]);
+
+            patronActual.iniciar();
+        }
+        
+        // Actualizar proyectiles y verificar colisiones con el tarro
+        for (int i = proyectiles.size - 1; i >= 0; i--) {
+            Proyectil p = proyectiles.get(i);
+            p.actualizar(delta);
+            
+            // Remover si está fuera de pantalla
+            if (p.fueraDePantalla()) {
+                proyectiles.removeIndex(i);
+                continue;
             }
-            if (raindrop.overlaps(tarro.getArea())) { // La gota choca con el tarro
-                if (rainDropsType.get(i) == 1) { // Gota dañina
+            
+            // Verificar colisión con el tarro (Proyector.hitbox vs Tarro.hitbox)
+            Rectangle pHitbox = p.getHitbox();
+            if (pHitbox.overlaps(tarro.getHitbox())) {
+                if (p.tipo == 1) { // Dañina
                     tarro.dañar();
                     if (tarro.getVidas() <= 0)
-                        return false; // Si se queda sin vidas retorna falso /game over
-                    rainDropsPos.removeIndex(i);
-                    rainDropsType.removeIndex(i);
-                } else { // Gota a recolectar
+                        return false;
+                    proyectiles.removeIndex(i);
+                } else { // Buena
                     tarro.sumarPuntos(10);
                     dropSound.play();
-                    rainDropsPos.removeIndex(i);
-                    rainDropsType.removeIndex(i);
+                    proyectiles.removeIndex(i);
                 }
             }
         }
+
+        // Cada 5 segundos, sumar 50 puntos automáticamente
+        if (TimeUtils.timeSinceMillis(ultimoTiempoPuntos) > 5000) {
+            tarro.sumarPuntos(50);
+            ultimoTiempoPuntos = TimeUtils.millis();
+        }
+
         return true;
     }
     
     public void actualizarDibujoLluvia(SpriteBatch batch) {
-        for (int i = 0; i < rainDropsPos.size; i++) {
-            Rectangle raindrop = rainDropsPos.get(i);
-            if (rainDropsType.get(i) == 1) // Gota dañina
-                batch.draw(gotaMala, raindrop.x, raindrop.y);
-            else
-                batch.draw(gotaBuena, raindrop.x, raindrop.y);
-        }
+        patronActual.dibujar(batch, proyectiles);
     }
     
     public void destruir() {

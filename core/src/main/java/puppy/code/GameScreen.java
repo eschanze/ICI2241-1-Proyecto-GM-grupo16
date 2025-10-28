@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class GameScreen implements Screen {
 	final GameLluviaMenu game;
     private OrthographicCamera camera;
-	private SpriteBatch batch;	   
+	private SpriteBatch batch;
 	private BitmapFont font;
 	private Tarro tarro;
 	private Lluvia lluvia;
@@ -66,8 +66,8 @@ public class GameScreen implements Screen {
 
 		// Dibujar textos en la parte superior de la pantalla
 		font.draw(batch, "Gotas totales: " + tarro.getPuntos(), 5, 475);
-		font.draw(batch, "Vidas : " + tarro.getVidas(), 670, 475);
-		font.draw(batch, "HighScore : " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
+		font.draw(batch, "Vidas: " + tarro.getVidas(), 670, 475);
+		font.draw(batch, "HighScore: " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
 		
 		if (!tarro.estaHerido()) {
 			// Movimiento del tarro desde teclado
@@ -75,7 +75,7 @@ public class GameScreen implements Screen {
 			// Caida de la lluvia
 	        if (!lluvia.actualizarMovimiento(tarro)) {
 	    	  	// Actualizar HigherScore
-	    	  	if (game.getHigherScore()<tarro.getPuntos())
+	    	  	if (game.getHigherScore() < tarro.getPuntos())
 	    			game.setHigherScore(tarro.getPuntos());
 	    	  	// Ir a la ventana de fin de juego. Destruir pantalla actual
 				game.setScreen(new GameOverScreen(game));
@@ -85,8 +85,10 @@ public class GameScreen implements Screen {
 		
 		tarro.dibujar(batch);
 		lluvia.actualizarDibujoLluvia(batch);
-		
 		batch.end();
+
+		// Dibujar hitboxes en modo debug
+		tarro.dibujarHitbox(camera);
 	}
 
 	@Override
