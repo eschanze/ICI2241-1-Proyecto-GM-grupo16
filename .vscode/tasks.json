@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "runLwjgl3",
+            "type": "shell",
+            "command": "./gradlew lwjgl3:run",
+            "group": "build"
+        }
+    ]
+}
