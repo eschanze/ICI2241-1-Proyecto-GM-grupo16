@@ -9,10 +9,14 @@ public class GameLluviaMenu extends Game {
 	private SpriteBatch batch;
 	private BitmapFont font;
 	private int higherScore; // Variable global para almacenar la puntuación más alta
+	LevelManager levelManager;
 
 	public void create() {
 		batch = new SpriteBatch();
 		font = new BitmapFont(); // Usar la fuente por defecto de LibGDX (Arial)
+		// Inicializar sistema de niveles
+		levelManager = new LevelManager();
+		// Ir a la pantalla del menú principal
 		this.setScreen(new MainMenuScreen(this));
 	}
 
@@ -31,6 +35,10 @@ public class GameLluviaMenu extends Game {
 
 	public BitmapFont getFont() {
 		return font;
+	}
+
+	public LevelManager getLevelManager() {
+		return levelManager;
 	}
 
 	public int getHigherScore() {

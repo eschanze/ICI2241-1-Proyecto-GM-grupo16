@@ -13,16 +13,21 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class GameScreen implements Screen {
 	final GameLluviaMenu game;
     private OrthographicCamera camera;
+	// Variables globales de dibujo
 	private SpriteBatch batch;
 	private BitmapFont font;
+	// Objetos del juego
 	private Tarro tarro;
 	private Lluvia lluvia;
-	   
-	// boolean activo = true;
+	// Variables de nivel
+	private LevelManager levelManager;
+    private Level currentLevel;
+    private boolean levelWon;
 
-	public GameScreen(final GameLluviaMenu game) {
+	public GameScreen(final GameLluviaMenu game, LevelManager levelManager) {
 
 		this.game = game;
+		this.levelManager = levelManager;
         this.batch = game.getBatch();
         this.font = game.getFont();
 	
@@ -44,11 +49,17 @@ public class GameScreen implements Screen {
 		camera.setToOrtho(false, 800, 480);
 		batch = new SpriteBatch();
 
+		// Inicializar LevelManager
+		if (!levelManager.isLoaded()) {
+			levelManager.loadLevels(gota);
+		}
+		this.currentLevel = levelManager.getCurrentLevel();
+
 		// Creación del tarro
 		tarro.crear();
 		
 		// Creación de la lluvia
-		lluvia.crear();
+		lluvia.crear(currentLevel);
 	}
 
 	@Override
@@ -65,26 +76,26 @@ public class GameScreen implements Screen {
 		batch.begin();
 
 		// Dibujar textos en la parte superior de la pantalla
-		font.draw(batch, "Gotas totales: " + tarro.getPuntos(), 5, 475);
+		font.draw(batch, "Puntos: " + tarro.getPuntos(), 5, 475);
 		font.draw(batch, "Vidas: " + tarro.getVidas(), 670, 475);
 		font.draw(batch, "HighScore: " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
 		
-		if (!tarro.estaHerido()) {
-			// Movimiento del tarro desde teclado
-	        tarro.actualizarMovimiento();        
-			// Caida de la lluvia
-	        if (!lluvia.actualizarMovimiento(tarro)) {
-	    	  	// Actualizar HigherScore
-	    	  	if (game.getHigherScore() < tarro.getPuntos())
-	    			game.setHigherScore(tarro.getPuntos());
-	    	  	// Ir a la ventana de fin de juego. Destruir pantalla actual
-				game.setScreen(new GameOverScreen(game));
-				dispose();
-	       	}
+		//if (!tarro.estaHerido()) {
+		// Movimiento del tarro desde teclado
+		tarro.actualizarMovimiento();
+		// Caida de la lluvia
+		if (!lluvia.actualizarMovimiento(tarro)) { // Si devuelve false, el juego ha terminado
+			// Actualizar HigherScore
+			if (game.getHigherScore() < tarro.getPuntos())
+				game.setHigherScore(tarro.getPuntos());
+			// Ir a la ventana de fin de juego. Destruir pantalla actual
+			game.setScreen(new GameOverScreen(game));
+			dispose();
 		}
+		//}
 		
-		tarro.dibujar(batch);
-		lluvia.actualizarDibujoLluvia(batch);
+		tarro.dibujar(batch); // Renderizar el tarro
+		lluvia.actualizarDibujoLluvia(batch); // Renderizar los proyectiles de la lluvia
 		batch.end();
 
 		// Dibujar hitboxes en modo debug

@@ -38,7 +38,8 @@ public class MainMenuScreen implements Screen {
 		batch.end();
 
 		if (Gdx.input.isTouched()) {
-			game.setScreen(new GameScreen(game));
+			game.levelManager.reset(); // Empezar desde el primer nivel
+			game.setScreen(new GameScreen(game, game.getLevelManager()));
 			dispose();
 		}
 	}

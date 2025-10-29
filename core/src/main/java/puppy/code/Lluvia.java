@@ -11,22 +11,19 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Lluvia {
-    // Variables patrón de ataque
+    // Variables del nivel
     private Array<Proyectil> proyectiles;
-    private Array<PatronAtaque> patrones;
-    private PatronAtaque patronActual;
-    private int indicePatron;
-    // Variables de gotas de lluvia
+    private Level currentLevel;
+    private float levelTime;
+    private Array<PatronAtaque> activePatterns; // Patrones activos en el nivel, permite múltiples patrones simultáneos
+    private Array<PatronTimeline> pendingPatterns;
+    private boolean levelComplete;
+
+    // Variables de texturas y sonidos
     private Texture gotaBuena;
     private Texture gotaMala;
     private Sound dropSound;
     private Music rainMusic;
-
-    // Zona permitida para las gotas
-    private float minX;
-    private float maxX;
-    private float minY;
-    private float maxY;
 
     // Tiempo para sumar puntos automáticamente
     private long ultimoTiempoPuntos;
@@ -38,32 +35,22 @@ public class Lluvia {
         // Inicializar texturas
         this.gotaBuena = gotaBuena;
         this.gotaMala = gotaMala;
-        // Definir zona de generación de gotas
-        this.minX = 200;
-        this.maxX = 600;
-        this.minY = 400;
-        this.maxY = 400;
-    }
-
-    // Genera una posición aleatoria dentro del área permitida
-    private float[] obtenerPosicionAleatoria() {
-        float x = MathUtils.random(minX, maxX);
-        float y = MathUtils.random(minY, maxY);
-        return new float[]{x, y};
+        // Inicializar arrays
+        proyectiles = new Array<Proyectil>();
+        activePatterns = new Array<PatronAtaque>();
+        pendingPatterns = new Array<PatronTimeline>();
     }
     
-    public void crear() {
-        proyectiles = new Array<Proyectil>();
-        patrones = new Array<PatronAtaque>();
+    // Al inicial el juego, se llama a esta función para crear la lluvia
+    public void crear(Level level) {
+        // Inicializar variables
+        this.currentLevel = level;
+        this.levelTime = 0;
+        this.activePatterns.clear();
+        this.proyectiles.clear();
+        this.pendingPatterns = new Array<>(level.getPatronSequence());
+        this.levelComplete = false;
 
-        // Por ahora, solo se generan gotas de lluvia con un patrón circular simple, con variación en la posición
-        float[] pos = obtenerPosicionAleatoria();
-        patrones.add(new PatronCircular(pos[0], pos[1], 32, 150, 5f, 0.5f, 30f, gotaBuena));
-        
-        // Iniciar el primer patrón
-        indicePatron = 0;
-        patronActual = patrones.get(indicePatron);
-        patronActual.iniciar();
         ultimoTiempoPuntos = TimeUtils.millis(); // Iniciar el temporizador de puntos
 
 		// Empezar la reproducción de la música de fondo inmediatamente
@@ -71,24 +58,36 @@ public class Lluvia {
         rainMusic.play();
     }
     
+    // Todos los frames se llama a esta función para actualizar la lógica de la lluvia
     public boolean actualizarMovimiento(Tarro tarro) {
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
-        
-        // Actualizar patrón actual
-        patronActual.actualizar(delta, proyectiles);
-        
-        // Si el patrón actual ha terminado, pasar al siguiente
-        if (patronActual.estaCompleto()) {
-            patronActual.limpiar();
-            indicePatron = (indicePatron + 1) % patrones.size;
-            patronActual = patrones.get(indicePatron);
+        levelTime += delta;
 
-            // Antes de iniciar el nuevo patrón, actualizar su posición
-            float[] pos = obtenerPosicionAleatoria();
-            // No necesitamos verificar el tipo de patrón, ya que todos deben implementar setPosition
-            patronActual.setPosition(pos[0], pos[1]);
+        // Activar los patrones en base a la línea de tiempo del nivel
+        for (int i = pendingPatterns.size - 1; i >= 0; i--) {
+            PatronTimeline pt = pendingPatterns.get(i);
+            if (levelTime >= pt.getStartTime()) {
+                PatronAtaque patron = pt.getPatron();
+                patron.iniciar();
+                activePatterns.add(patron);
+                pendingPatterns.removeIndex(i);
+            }
+        }
 
-            patronActual.iniciar();
+        // Actualizar patrones activos
+        for (int i = activePatterns.size - 1; i >= 0; i--) {
+            PatronAtaque patron = activePatterns.get(i);
+            patron.actualizar(delta, proyectiles);
+            
+            if (patron.estaCompleto()) {
+                patron.limpiar();
+                activePatterns.removeIndex(i);
+            }
+        }
+
+        // Verificar si el nivel está completo
+        if (pendingPatterns.size == 0 && activePatterns.size == 0 && proyectiles.size == 0) {
+            levelComplete = true;
         }
         
         // Actualizar proyectiles y verificar colisiones con el tarro
@@ -104,17 +103,39 @@ public class Lluvia {
             
             // Verificar colisión con el tarro (Proyector.hitbox vs Tarro.hitbox)
             Rectangle pHitbox = p.getHitbox();
-            if (pHitbox.overlaps(tarro.getHitbox())) {
-                if (p.tipo == 1) { // Dañina
+            if (!pHitbox.overlaps(tarro.getHitbox())) continue;
+
+            switch (p.tipo) {
+                // 1: Proyectil normal
+                case 1:
                     tarro.dañar();
-                    if (tarro.getVidas() <= 0)
-                        return false;
+                    if (tarro.getVidas() <= 0) return false;
                     proyectiles.removeIndex(i);
-                } else { // Buena
+                
+                // 2: "quieto-daño": daña solo si el tarro está QUIETO
+                case 2:
+                    if (!tarro.enMovimiento()) {
+                        tarro.dañar();
+                        if (tarro.getVidas() <= 0) return false;
+                        proyectiles.removeIndex(i);
+                    }
+                    break;
+
+                // 3: "mov-daño": daña solo si el tarro está EN MOVIMIENTO
+                case 3:
+                    if (tarro.enMovimiento()) {
+                        tarro.dañar();
+                        if (tarro.getVidas() <= 0) return false;
+                    }
+                    break;
+                
+                // 4 (ejemplo): Proyectil "bueno"
+                case 4:
+                default:
                     tarro.sumarPuntos(10);
                     dropSound.play();
                     proyectiles.removeIndex(i);
-                }
+                    break;
             }
         }
 
@@ -124,11 +145,17 @@ public class Lluvia {
             ultimoTiempoPuntos = TimeUtils.millis();
         }
 
+        // Retorna true o false dependiendo si el jugador sigue vivo
         return true;
     }
     
     public void actualizarDibujoLluvia(SpriteBatch batch) {
-        patronActual.dibujar(batch, proyectiles);
+        /*for (Proyectil p : proyectiles) {
+            batch.draw(p.textura, p.getArea().x, p.getArea().y);
+        }*/
+        for (PatronAtaque patron : activePatterns) {
+            patron.dibujar(batch, proyectiles);
+        }
     }
     
     public void destruir() {

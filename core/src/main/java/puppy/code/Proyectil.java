@@ -37,6 +37,10 @@ public class Proyectil {
         return hitbox;
     }
 
+    public int getTipo() {
+        return tipo;
+    }
+
     // Actualizar la posición del proyectil
     public void actualizar(float delta) {
         float dx = velocidadX * delta;

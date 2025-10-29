@@ -144,7 +144,20 @@ public class Tarro {
 		// Actualizar la hitbox
 		actualizarHitbox();
 	}
-	    
+
+	public boolean enMovimiento() {
+		// El jugador mantiene alguna tecla direccional presionada
+		return Gdx.input.isKeyPressed(Input.Keys.LEFT)
+			|| Gdx.input.isKeyPressed(Input.Keys.RIGHT)
+			|| Gdx.input.isKeyPressed(Input.Keys.UP)
+			|| Gdx.input.isKeyPressed(Input.Keys.DOWN);
+	}
+
+	public void iniciarInvulnerabilidad(float segundos) {
+		herido = true;
+		tiempoHerido = (int)(segundos * 60); // Asumiendo 60 FPS
+	}
+
 	public void destruir() {
 		bucketImage.dispose();
 	}

@@ -6,8 +6,9 @@ import com.badlogic.gdx.utils.Array;
 public interface PatronAtaque {
     void iniciar();
     void setPosition(float x, float y);
-    void actualizar(float delta, Array<Proyectil> proyectiles);
+    void actualizar(float delta, Array<Proyectil> proyectiles); 
     boolean estaCompleto();
     void dibujar(SpriteBatch batch, Array<Proyectil> proyectiles);
     void limpiar();
+    PatronAtaque clone();  // Nuevo método para clonar el patrón
 }

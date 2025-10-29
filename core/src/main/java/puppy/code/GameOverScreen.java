@@ -9,10 +9,10 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameOverScreen implements Screen {
 	private final GameLluviaMenu game;
-	private SpriteBatch batch;	   
+	private SpriteBatch batch;
 	private BitmapFont font;
 	private OrthographicCamera camera;
-
+ 
 	public GameOverScreen(final GameLluviaMenu game) {
 		this.game = game;
         this.batch = game.getBatch();
@@ -33,7 +33,7 @@ public class GameOverScreen implements Screen {
 		batch.end();
 
 		if (Gdx.input.isTouched()) {
-			game.setScreen(new GameScreen(game));
+			game.setScreen(new GameScreen(game, game.getLevelManager()));
 			dispose();
 		}
 	}
