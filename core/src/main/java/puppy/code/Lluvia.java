@@ -20,25 +20,21 @@ public class Lluvia {
     private boolean levelComplete;
 
     // Variables de texturas y sonidos
-    private Texture gotaBuena;
-    private Texture gotaMala;
-    private Sound dropSound;
-    private Music rainMusic;
+    Texture bulletTex;
+    Music backgroundMusic;
 
     // Tiempo para sumar puntos automáticamente
     private long ultimoTiempoPuntos;
     
-    public Lluvia(Texture gotaBuena, Texture gotaMala, Sound ss, Music mm) {
+    public Lluvia(Texture bulletTex, Music backgroundMusic) {
         // Inicializar sonidos
-        rainMusic = mm;
-        dropSound = ss;
+        this.backgroundMusic = backgroundMusic;
         // Inicializar texturas
-        this.gotaBuena = gotaBuena;
-        this.gotaMala = gotaMala;
+        this.bulletTex = bulletTex;
         // Inicializar arrays
-        proyectiles = new Array<Proyectil>();
-        activePatterns = new Array<PatronAtaque>();
-        pendingPatterns = new Array<PatronTimeline>();
+        this.proyectiles = new Array<Proyectil>();
+        this.activePatterns = new Array<PatronAtaque>();
+        this.pendingPatterns = new Array<PatronTimeline>();
     }
     
     // Al inicial el juego, se llama a esta función para crear la lluvia
@@ -54,8 +50,8 @@ public class Lluvia {
         ultimoTiempoPuntos = TimeUtils.millis(); // Iniciar el temporizador de puntos
 
 		// Empezar la reproducción de la música de fondo inmediatamente
-        rainMusic.setLooping(true);
-        rainMusic.play();
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
     }
     
     // Todos los frames se llama a esta función para actualizar la lógica de la lluvia
@@ -133,7 +129,7 @@ public class Lluvia {
                 case 4:
                 default:
                     tarro.sumarPuntos(10);
-                    dropSound.play();
+                    //dropSound.play();
                     proyectiles.removeIndex(i);
                     break;
             }
@@ -159,15 +155,15 @@ public class Lluvia {
     }
     
     public void destruir() {
-        dropSound.dispose();
-        rainMusic.dispose();
+        //dropSound.dispose();
+        backgroundMusic.dispose();
     }
     
     public void pausar() {
-        rainMusic.stop();
+        backgroundMusic.stop();
     }
     
     public void continuar() {
-        rainMusic.play();
+        backgroundMusic.play();
     }
 }

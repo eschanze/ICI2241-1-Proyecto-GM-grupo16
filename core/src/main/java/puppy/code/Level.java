@@ -12,6 +12,18 @@ public class Level {
         return patronTimelines;
     }
 
+    public String getLevelName() {
+        return levelName;
+    }
+
+    public int getLevelNumber() {
+        return levelNumber;
+    }   
+
+    public float getTotalDuration() {
+        return totalDuration;
+    }
+
     public void setLevelName(String name) {
         this.levelName = name;
     }

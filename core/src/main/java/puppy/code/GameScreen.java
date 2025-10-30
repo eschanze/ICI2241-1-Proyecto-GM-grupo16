@@ -23,6 +23,8 @@ public class GameScreen implements Screen {
 	private LevelManager levelManager;
     private Level currentLevel;
     private boolean levelWon;
+	// Tiempo de juego
+	private float gameTime = 0f;
 
 	public GameScreen(final GameLluviaMenu game, LevelManager levelManager) {
 
@@ -35,14 +37,12 @@ public class GameScreen implements Screen {
 		Sound hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
 		tarro = new Tarro(new Texture(Gdx.files.internal("bucket.png")),hurtSound);
          
-		// Cargar sonidos e imágenes de la gota y "sonido de fondo" de la lluvía
-        Texture gota = new Texture(Gdx.files.internal("drop.png"));
-        Texture gotaMala = new Texture(Gdx.files.internal("dropBad.png"));
-         
-        Sound dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
-        
-		Music rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-		lluvia = new Lluvia(gota, gotaMala, dropSound, rainMusic);
+		// Cargar imágenes de los proyectiles y soundtrack del nivel
+        Texture bulletTex = new Texture(Gdx.files.internal("fire_bullet.png"));
+		Music levelMusic = Gdx.audio.newMusic(Gdx.files.internal("level1_ost.mp3"));
+		 
+		// Crear la lluvia
+		lluvia = new Lluvia(bulletTex, levelMusic);
 		
 		// Camera
 		camera = new OrthographicCamera();
@@ -51,7 +51,7 @@ public class GameScreen implements Screen {
 
 		// Inicializar LevelManager
 		if (!levelManager.isLoaded()) {
-			levelManager.loadLevels(gota);
+			levelManager.loadLevels(bulletTex);
 		}
 		this.currentLevel = levelManager.getCurrentLevel();
 
@@ -64,6 +64,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
+		gameTime += delta;
 
 		// Limpia la pantalla con color azul oscuro
 		ScreenUtils.clear(0, 0, 0.2f, 1);
@@ -79,6 +80,8 @@ public class GameScreen implements Screen {
 		font.draw(batch, "Puntos: " + tarro.getPuntos(), 5, 475);
 		font.draw(batch, "Vidas: " + tarro.getVidas(), 670, 475);
 		font.draw(batch, "HighScore: " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
+
+		font.draw(batch, String.format("Time: %.2fs", gameTime), 10, 575);
 		
 		//if (!tarro.estaHerido()) {
 		// Movimiento del tarro desde teclado
