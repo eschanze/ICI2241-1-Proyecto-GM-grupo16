@@ -30,7 +30,7 @@ public class Tarro {
 	private int tiempoHerido; // Contador de i-frames restantes
 
     private ShapeRenderer shapeRenderer; // Para dibujar la hitbox en modo debug
-    private boolean debugMode = true; // Activar/desactivar modo debug
+    private boolean debugMode = false; // Inicializar modoDebug desactivado, se activa con la tecla D
 	   
 	public Tarro(Texture tex, Sound ss) {
 		bucketImage = tex;
@@ -94,7 +94,8 @@ public class Tarro {
 	}
 
 	public void dibujarHitbox(OrthographicCamera camera) {
-		if (debugMode) {
+		// Mostrar hitbox si estamos en modo debug OR si el jugador está usando SHIFT (movimiento lento)
+		if (debugMode || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
 			shapeRenderer.setProjectionMatrix(camera.combined);
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 			shapeRenderer.setColor(1, 0, 0, 1); // Rojo
@@ -160,5 +161,22 @@ public class Tarro {
 
 	public void destruir() {
 		bucketImage.dispose();
+		if (shapeRenderer != null) {
+			shapeRenderer.dispose();
+			shapeRenderer = null;
+		}
+	}
+
+	// Métodos públicos para controlar el modo debug desde otras clases
+	public void setDebugMode(boolean enabled) {
+		this.debugMode = enabled;
+	}
+
+	public void toggleDebugMode() {
+		this.debugMode = !this.debugMode;
+	}
+
+	public boolean isDebugMode() {
+		return this.debugMode;
 	}
 }

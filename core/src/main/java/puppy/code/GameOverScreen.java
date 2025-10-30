@@ -12,6 +12,7 @@ public class GameOverScreen implements Screen {
 	private SpriteBatch batch;
 	private BitmapFont font;
 	private OrthographicCamera camera;
+    private boolean waitingForRelease = true; // evita reactivar inmediatamente si el toque causó la pérdida
  
 	public GameOverScreen(final GameLluviaMenu game) {
 		this.game = game;
@@ -32,9 +33,16 @@ public class GameOverScreen implements Screen {
 		font.draw(batch, "Toca en cualquier lado para reiniciar.", 100, 100);
 		batch.end();
 
-		if (Gdx.input.isTouched()) {
-			game.setScreen(new GameScreen(game, game.getLevelManager()));
-			dispose();
+
+		// Evitar que un toque que causó la muerte reinicie inmediatamente:
+		if (waitingForRelease) {
+			if (!Gdx.input.isTouched()) waitingForRelease = false;
+		} else {
+			if (Gdx.input.isTouched()) {
+				// Reiniciar el nivel actual
+				game.setScreen(new GameScreen(game, game.getLevelManager()));
+				dispose();
+			}
 		}
 	}
 
