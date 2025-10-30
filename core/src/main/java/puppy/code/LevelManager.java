@@ -16,11 +16,11 @@ public class LevelManager {
         level1.setLevelNumber(1);
         PatronCircular patron1 = new PatronCircular(0, 0, 1, 12, 150f, 10f, 1, 20, gota);
         PatronCircular patron2 = new PatronCircular(0, 0, 1, 24, 300f, 10f, 1, 20, gota);
-        level1.addPatron(new PatronTimeline(patron1, 200, 400, 0f, 10f, true));
-        level1.addPatron(new PatronTimeline(patron1, 600, 400, 0f, 10f, true));
+        //level1.addPatron(new PatronTimeline(patron1, 200, 400, 0f, 10f, true));
+        //level1.addPatron(new PatronTimeline(patron1, 600, 400, 0f, 10f, true));
         level1.addPatron(new PatronTimeline(patron2, 400, 400, 3f, 6f, true));
         level1.addPatron(new PatronTimeline(patron2, 200, 400, 6f, 9f, true));
-        level1.addPatron(new PatronTimeline(patron2, 600, 400, 6f, 9f, true));
+        //level1.addPatron(new PatronTimeline(patron2, 600, 400, 6f, 9f, true));
         levels.add(level1);
 
         loaded = true;

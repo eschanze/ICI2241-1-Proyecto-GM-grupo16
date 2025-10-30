@@ -170,4 +170,9 @@ public class Lluvia {
     public void continuar() {
         rainMusic.play();
     }
+
+    // Indica si el nivel actual ha terminado (sin patrones pendientes, sin proyectiles activos)
+    public boolean isLevelComplete() {
+        return levelComplete;
+    }
 }

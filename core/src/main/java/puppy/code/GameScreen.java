@@ -2,6 +2,7 @@ package puppy.code;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -65,6 +66,18 @@ public class GameScreen implements Screen {
 	@Override
 	public void render(float delta) {
 
+		// Detectar input de pausa manual (P o ESC)
+		if (Gdx.input.isKeyJustPressed(Input.Keys.P) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			// Reusar el método pause() para detener la música y cambiar de pantalla
+			pause();
+			return;
+		}
+
+		// Toggle debug mode (tecla D)
+		if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+			if (tarro != null) tarro.toggleDebugMode();
+		}
+
 		// Limpia la pantalla con color azul oscuro
 		ScreenUtils.clear(0, 0, 0.2f, 1);
 
@@ -91,6 +104,13 @@ public class GameScreen implements Screen {
 			// Ir a la ventana de fin de juego. Destruir pantalla actual
 			game.setScreen(new GameOverScreen(game));
 			dispose();
+		}
+
+		// Si el nivel terminó, ir a pantalla de nivel completado
+		if (lluvia.isLevelComplete()) {
+			game.setScreen(new LevelCompleteScreen(game, this, levelManager));
+			dispose();
+			return;
 		}
 		//}
 		
