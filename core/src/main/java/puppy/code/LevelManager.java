@@ -14,13 +14,14 @@ public class LevelManager {
         Level level1 = new Level();
         level1.setLevelName("Boss 1");
         level1.setLevelNumber(1);
-        PatronCircular patron1 = new PatronCircular(0, 0, 1, 12, 150f, 10f, 1, 20, gota);
-        PatronCircular patron2 = new PatronCircular(0, 0, 1, 24, 300f, 10f, 1, 20, gota);
-        //level1.addPatron(new PatronTimeline(patron1, 200, 400, 0f, 10f, true));
-        //level1.addPatron(new PatronTimeline(patron1, 600, 400, 0f, 10f, true));
-        level1.addPatron(new PatronTimeline(patron2, 400, 400, 3f, 6f, true));
-        level1.addPatron(new PatronTimeline(patron2, 200, 400, 6f, 9f, true));
-        //level1.addPatron(new PatronTimeline(patron2, 600, 400, 6f, 9f, true));
+        // Crear patrones
+        PatronCircular patron_circular_1 = new PatronCircular(0, 0, 1, 12, 150f, 5f, 1, 20f, gota);
+        //PatronCircular patron_circular_2 = new PatronCircular(0, 0, 1, 24, 300f, 5f, 1, 20f, gota);
+        //PatronEspiral patron_espiral_1 = new PatronEspiral(0, 0, 1, 16, 30f, 24f, 0.5f, 30f, gota);
+        //PatronEspiral patron_espiral_2 = new PatronEspiral(0, 0, 1, 8, 200f, 24f, 0.1f, 30f, gota);
+        // Línea de tiempo del nivel 1
+        level1.addPatron(new PatronTimeline(patron_circular_1, 200, 400, 3.5f, 3.5f, true));
+        level1.addPatron(new PatronTimeline(patron_circular_1, 400, 400, 4.5f, 5.5f, true));
         levels.add(level1);
 
         loaded = true;

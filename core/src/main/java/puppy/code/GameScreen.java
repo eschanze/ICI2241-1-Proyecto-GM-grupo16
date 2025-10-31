@@ -36,7 +36,7 @@ public class GameScreen implements Screen {
 	
 		// Cargar imagen y sonido para la gota y el tarro, 64x64 píxeles cada uno  
 		Sound hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-		tarro = new Tarro(new Texture(Gdx.files.internal("bucket.png")),hurtSound);
+		tarro = new Tarro(new Texture(Gdx.files.internal("knight.png")),hurtSound);
          
 		// Cargar imágenes de los proyectiles y soundtrack del nivel
         Texture bulletTex = new Texture(Gdx.files.internal("fire_bullet.png"));
@@ -94,7 +94,7 @@ public class GameScreen implements Screen {
 		font.draw(batch, "Vidas: " + tarro.getVidas(), 670, 475);
 		font.draw(batch, "HighScore: " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
 
-		font.draw(batch, String.format("Time: %.2fs", gameTime), 10, 575);
+		font.draw(batch, String.format("Time: %.2fs", gameTime), 160, 475);
 		
 		//if (!tarro.estaHerido()) {
 		// Movimiento del tarro desde teclado
@@ -107,6 +107,7 @@ public class GameScreen implements Screen {
 			// Ir a la ventana de fin de juego. Destruir pantalla actual
 			game.setScreen(new GameOverScreen(game));
 			dispose();
+			return;
 		}
 
 		// Si el nivel terminó, ir a pantalla de nivel completado

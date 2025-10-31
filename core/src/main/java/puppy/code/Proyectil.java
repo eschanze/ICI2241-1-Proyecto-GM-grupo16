@@ -1,6 +1,7 @@
 package puppy.code;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Proyectil {
@@ -39,6 +40,12 @@ public class Proyectil {
 
     public int getTipo() {
         return tipo;
+    }
+
+    // Función auxiliar para obtener la rotación en grados basada en la velocidad
+    // La usamos para rotar el sprite del proyectil al dibujarlo, basado en su dirección de movimiento
+    public float getRotationDeg() {
+        return MathUtils.atan2(velocidadY, velocidadX) * MathUtils.radiansToDegrees;
     }
 
     // Actualizar la posición del proyectil

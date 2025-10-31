@@ -63,10 +63,10 @@ public class Tarro {
 	
 	public void crear() {
 		bucket = new Rectangle();
-		bucket.x = (800 / 2) - (64 / 2);
+		bucket.x = (800 / 2) - (128 / 2);
 		bucket.y = 20;
-		bucket.width = 64;
-		bucket.height = 64;
+		bucket.width = 128;
+		bucket.height = 128;
 
 		// Crear la hitbox ligeramente más pequeña que el tarro
 		hitbox = new Rectangle();
@@ -105,8 +105,8 @@ public class Tarro {
 	}
 
 	private void actualizarHitbox() {
-		hitbox.x = bucket.x + (bucket.width - HITBOX_SIZE) / 2;
-		hitbox.y = bucket.y + (bucket.height - HITBOX_SIZE) / 2;
+		hitbox.x = bucket.x + (bucket.width - HITBOX_SIZE) / 2 - 16;
+		hitbox.y = bucket.y + (bucket.height - HITBOX_SIZE) / 2 - 16;
 		hitbox.width = HITBOX_SIZE;
 		hitbox.height = HITBOX_SIZE;
 	}
@@ -138,9 +138,9 @@ public class Tarro {
 		
 		// Mantener dentro de los límites de la pantalla
 		if(bucket.x < 0) bucket.x = 0;
-		if(bucket.x > 800 - 64) bucket.x = 800 - 64;
+		if(bucket.x > 800 - bucket.width) bucket.x = 800 - bucket.width;
 		if(bucket.y < 0) bucket.y = 0;
-		if(bucket.y > 480 - 64) bucket.y = 480 - 64;
+		if(bucket.y > 480 - bucket.height) bucket.y = 480 - bucket.height;
 
 		// Actualizar la hitbox
 		actualizarHitbox();

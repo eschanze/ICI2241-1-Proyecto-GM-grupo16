@@ -5,6 +5,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
+// Clase abstracta para definir patrones de ataque
+// Proporciona una estructura base para diferentes patrones de ataque que pueden ser implementados por subclases.
+// Es una buena práctica usar una clase abstracta aquí ya que todos los patrones de ataque comparten ciertos atributos y métodos comunes,
+// pero cada patrón específico tendrá su propia lógica de actualización y clonación.
+// Por todo esto, se cumple con el requisito GM1.4
 public abstract class PatronAtaque {
     // Atributos comunes a todos los patrones
     protected float tiempoTranscurrido;
@@ -48,7 +53,10 @@ public abstract class PatronAtaque {
     public void dibujar(SpriteBatch batch, Array<Proyectil> proyectiles) {
         for (Proyectil p : proyectiles) {
             Rectangle pArea = p.getArea();
-            batch.draw(p.textura, pArea.x, pArea.y);
+            batch.draw(p.textura, pArea.x, pArea.y, pArea.width * 0.5f, pArea.height * 0.5f, 
+            pArea.width, pArea.height, 1f, 1f, p.getRotationDeg(),
+            0, 0,
+            p.textura.getWidth(), p.textura.getHeight(), false, false);
         }
     }
     

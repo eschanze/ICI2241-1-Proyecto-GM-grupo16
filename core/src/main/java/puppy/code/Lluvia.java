@@ -107,6 +107,7 @@ public class Lluvia {
                     tarro.dañar();
                     if (tarro.getVidas() <= 0) return false;
                     proyectiles.removeIndex(i);
+                    break;
                 
                 // 2: "quieto-daño": daña solo si el tarro está QUIETO
                 case 2:
