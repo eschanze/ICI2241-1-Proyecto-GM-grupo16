@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public class Lluvia {
+public class ProyectilManager {
     // Variables del nivel
     private Array<Proyectil> proyectiles;
     private Level currentLevel;
@@ -23,10 +23,13 @@ public class Lluvia {
     Texture bulletTex;
     Music backgroundMusic;
 
+    // Sprite del dragón (no hace nada todavía, pero es progreso para la entrega final)
+    private Texture magmaDragonTex;
+
     // Tiempo para sumar puntos automáticamente
     private long ultimoTiempoPuntos;
     
-    public Lluvia(Texture bulletTex, Music backgroundMusic) {
+    public ProyectilManager(Texture bulletTex, Music backgroundMusic) {
         // Inicializar sonidos
         this.backgroundMusic = backgroundMusic;
         // Inicializar texturas
@@ -35,9 +38,11 @@ public class Lluvia {
         this.proyectiles = new Array<Proyectil>();
         this.activePatterns = new Array<PatronAtaque>();
         this.pendingPatterns = new Array<PatronTimeline>();
+        // Cargar textura del dragón
+        magmaDragonTex = new Texture(Gdx.files.internal("magma_dragon_256.png"));
     }
     
-    // Al inicial el juego, se llama a esta función para crear la lluvia
+    // Al inicial el juego, se llama a esta función
     public void crear(Level level) {
         // Inicializar variables
         this.currentLevel = level;
@@ -54,8 +59,8 @@ public class Lluvia {
         backgroundMusic.play();
     }
     
-    // Todos los frames se llama a esta función para actualizar la lógica de la lluvia
-    public boolean actualizarMovimiento(Tarro tarro) {
+    // Todos los frames se llama a esta función para actualizar la lógica de los proyectiles
+    public boolean actualizarMovimiento(Jugador jugador) {
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
         levelTime += delta;
 
@@ -81,8 +86,8 @@ public class Lluvia {
             }
         }
 
-        // Verificar si el nivel está completo
-        if (pendingPatterns.size == 0 && activePatterns.size == 0 && proyectiles.size == 0) {
+        // Verificar si el nivel está completo (para el avance está hardcodeado el "fin")
+        if ((pendingPatterns.size == 0 && activePatterns.size == 0 && proyectiles.size == 0) || (levelTime >= 65f)) {
             levelComplete = true;
         }
         
@@ -97,48 +102,23 @@ public class Lluvia {
                 continue;
             }
             
-            // Verificar colisión con el tarro (Proyector.hitbox vs Tarro.hitbox)
-            Rectangle pHitbox = p.getHitbox();
-            if (!pHitbox.overlaps(tarro.getHitbox())) continue;
-
-            switch (p.tipo) {
-                // 1: Proyectil normal
-                case 1:
-                    tarro.dañar();
-                    if (tarro.getVidas() <= 0) return false;
-                    proyectiles.removeIndex(i);
-                    break;
+            // Verificar colisión con el tarro (Proyectil.hitbox vs Jugador.hitbox)
+            if (jugador.colisionaCon(p)) {
+                jugador.alColisionar(p);
                 
-                // 2: "quieto-daño": daña solo si el tarro está QUIETO
-                case 2:
-                    if (!tarro.enMovimiento()) {
-                        tarro.dañar();
-                        if (tarro.getVidas() <= 0) return false;
-                        proyectiles.removeIndex(i);
-                    }
-                    break;
-
-                // 3: "mov-daño": daña solo si el tarro está EN MOVIMIENTO
-                case 3:
-                    if (tarro.enMovimiento()) {
-                        tarro.dañar();
-                        if (tarro.getVidas() <= 0) return false;
-                    }
-                    break;
-                
-                // 4 (ejemplo): Proyectil "bueno"
-                case 4:
-                default:
-                    tarro.sumarPuntos(10);
-                    //dropSound.play();
+                // Revisar si se debería eliminar el proyectil
+                if (p.alColisionar(jugador)) {
                     proyectiles.removeIndex(i);
-                    break;
+                }
+                
+                // Revisar si el jugador murió después de la colisión
+                if (jugador.getVidas() <= 0) return false;
             }
         }
 
         // Cada 5 segundos, sumar 50 puntos automáticamente
         if (TimeUtils.timeSinceMillis(ultimoTiempoPuntos) > 5000) {
-            tarro.sumarPuntos(50);
+            jugador.sumarPuntos(50);
             ultimoTiempoPuntos = TimeUtils.millis();
         }
 
@@ -146,12 +126,16 @@ public class Lluvia {
         return true;
     }
     
-    public void actualizarDibujoLluvia(SpriteBatch batch) {
-        /*for (Proyectil p : proyectiles) {
-            batch.draw(p.textura, p.getArea().x, p.getArea().y);
-        }*/
+    public void actualizarDibujoProyectiles(SpriteBatch batch) {
+        // Dibujar todos los proyectiles de los patrones activos
         for (PatronAtaque patron : activePatterns) {
             patron.dibujar(batch, proyectiles);
+        }
+        // Dibujar el dragón en una posición fija, por ahora
+        if (magmaDragonTex != null) {
+            float x = 280f;
+            float y = 235f;
+            batch.draw(magmaDragonTex, x, y);
         }
     }
     
@@ -161,7 +145,7 @@ public class Lluvia {
     }
     
     public void pausar() {
-        backgroundMusic.stop();
+        backgroundMusic.pause();
     }
     
     public void continuar() {

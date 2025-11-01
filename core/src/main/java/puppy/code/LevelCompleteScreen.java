@@ -28,44 +28,36 @@ public class LevelCompleteScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(0f, 0f, 0f, 0.7f);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Nivel completado!", 250, 300);
-        font.draw(batch, "Toca en cualquier lado para continuar al siguiente nivel", 80, 200);
+        font.getData().setScale(3.0f, 3.0f);
+        font.draw(batch, "NIVEL COMPLETADO", (camera.viewportWidth / 2f) - 270f, (camera.viewportHeight / 2f) + 70f);
+        font.getData().setScale(1f, 1f);
+        font.draw(batch, "Toca en cualquier lado para continuar al siguiente nivel", (camera.viewportWidth / 2f) - 270f, (camera.viewportHeight / 2f));
         batch.end();
 
-        if (Gdx.input.isTouched()) {
+        if (Gdx.input.justTouched()) {
             // Si hay siguiente nivel, avanzar y crear nueva GameScreen
             if (levelManager.hasNextLevel()) {
                 levelManager.advanceLevel();
                 game.setScreen(new GameScreen(game, levelManager));
             } else {
-                // No hay más niveles: terminar el juego (ir a GameOver)
+                // No hay más niveles: ir al menú principal
                 // (la pantalla anterior ya debería liberar recursos al cambiar)
-                game.setScreen(new GameOverScreen(game));
+                levelManager.reset();
+                game.setScreen(new MainMenuScreen(game));
             }
             dispose();
         }
     }
 
-    @Override
-    public void show() { }
-
-    @Override
-    public void resize(int width, int height) { }
-
-    @Override
-    public void pause() { }
-
-    @Override
-    public void resume() { }
-
-    @Override
-    public void hide() { }
-
-    @Override
-    public void dispose() { }
+    @Override public void show() { }
+    @Override public void resize(int width, int height) { }
+    @Override public void pause() { }
+    @Override public void resume() { }
+    @Override public void hide() { }
+    @Override public void dispose() { }
 }

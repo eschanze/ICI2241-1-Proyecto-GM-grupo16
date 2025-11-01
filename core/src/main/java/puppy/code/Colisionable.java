@@ -18,5 +18,6 @@ public interface Colisionable {
     }
     
     // Acción a realizar al colisionar con otro objeto Colisionable
-    void alColisionar(Colisionable other);
+    // Retorna un boolean que representa si se debería "consumir" (remover) el objeto al colisionar
+    boolean alColisionar(Colisionable other);
 }

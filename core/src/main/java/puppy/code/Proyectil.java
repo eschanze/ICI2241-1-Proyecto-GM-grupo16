@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Proyectil {
+public class Proyectil implements Colisionable {
     private Rectangle area;
 	private Rectangle hitbox; // Área de colisión del proyectil
 	private static final float HITBOX_SIZE = 8; // Tamaño de la hitbox cuadrada
@@ -46,6 +46,28 @@ public class Proyectil {
     // La usamos para rotar el sprite del proyectil al dibujarlo, basado en su dirección de movimiento
     public float getRotationDeg() {
         return MathUtils.atan2(velocidadY, velocidadX) * MathUtils.radiansToDegrees;
+    }
+
+    // Lógica del proyectil al colisionar con otro objeto
+    @Override
+    public boolean alColisionar(Colisionable other) {
+        if (other instanceof Jugador) {
+            // Si colisiona con el jugador...
+            Jugador Jugador = (Jugador) other;
+            
+            switch (tipo) {
+                case 1: // Proyectil normal
+                    return true;
+                case 2: // Quieto-daño
+                    return !Jugador.enMovimiento();
+                case 3: // Mov-daño
+                    return Jugador.enMovimiento();
+                case 4: // Bueno
+                default:
+                    return true;
+            }
+        }
+        return false;
     }
 
     // Actualizar la posición del proyectil

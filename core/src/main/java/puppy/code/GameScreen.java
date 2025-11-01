@@ -18,8 +18,8 @@ public class GameScreen implements Screen {
 	private SpriteBatch batch;
 	private BitmapFont font;
 	// Objetos del juego
-	private Tarro tarro;
-	private Lluvia lluvia;
+	private Jugador jugador;
+	private ProyectilManager proyectilManager;
 	// Variables de nivel
 	private LevelManager levelManager;
     private Level currentLevel;
@@ -33,17 +33,19 @@ public class GameScreen implements Screen {
 		this.levelManager = levelManager;
         this.batch = game.getBatch();
         this.font = game.getFont();
+		font.getData().setScale(2f, 2f); // Tamaño del texto durante GameScreen
 	
-		// Cargar imagen y sonido para la gota y el tarro, 64x64 píxeles cada uno  
+		// Cargar sónido de daño y el sprite del jugador
 		Sound hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-		tarro = new Tarro(new Texture(Gdx.files.internal("knight.png")),hurtSound);
+		jugador = new Jugador(new Texture(Gdx.files.internal("knight.png")),hurtSound);
          
 		// Cargar imágenes de los proyectiles y soundtrack del nivel
         Texture bulletTex = new Texture(Gdx.files.internal("fire_bullet.png"));
+		Texture bullet2Tex = new Texture(Gdx.files.internal("fire_bullet_2.png"));
 		Music levelMusic = Gdx.audio.newMusic(Gdx.files.internal("level1_ost.mp3"));
 		 
-		// Crear la lluvia
-		lluvia = new Lluvia(bulletTex, levelMusic);
+		// Crear el ProyectilManager
+		proyectilManager = new ProyectilManager(bulletTex, levelMusic);
 		
 		// Camera
 		camera = new OrthographicCamera();
@@ -52,15 +54,15 @@ public class GameScreen implements Screen {
 
 		// Inicializar LevelManager
 		if (!levelManager.isLoaded()) {
-			levelManager.loadLevels(bulletTex);
+			levelManager.loadLevels(bulletTex, bullet2Tex);
 		}
 		this.currentLevel = levelManager.getCurrentLevel();
 
-		// Creación del tarro
-		tarro.crear();
+		// Creación de clase jugador
+		jugador.crear();
 		
-		// Creación de la lluvia
-		lluvia.crear(currentLevel);
+		// Creación del ProyectilManager
+		proyectilManager.crear(currentLevel);
 	}
 
 	@Override
@@ -76,11 +78,11 @@ public class GameScreen implements Screen {
 
 		// Toggle debug mode (tecla D)
 		if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-			if (tarro != null) tarro.toggleDebugMode();
+			if (jugador != null) jugador.toggleDebugMode();
 		}
 
-		// Limpia la pantalla con color azul oscuro
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+		// Limpia la pantalla con color rojo oscuro
+		ScreenUtils.clear(0.05f, 0f, 0f, 0.6f);
 
 		// Actualizar matrices de la cámara
 		camera.update();
@@ -90,20 +92,20 @@ public class GameScreen implements Screen {
 		batch.begin();
 
 		// Dibujar textos en la parte superior de la pantalla
-		font.draw(batch, "Puntos: " + tarro.getPuntos(), 5, 475);
-		font.draw(batch, "Vidas: " + tarro.getVidas(), 670, 475);
-		font.draw(batch, "HighScore: " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
+		font.draw(batch, "Puntos: " + jugador.getPuntos(), 5, 475);
+		font.draw(batch, "Vidas: " + jugador.getVidas(), 680, 475);
+		font.draw(batch, "HighScore: " + game.getHigherScore(), 470, 475);
 
-		font.draw(batch, String.format("Time: %.2fs", gameTime), 160, 475);
+		font.draw(batch, String.format("Tiempo: %.2fs", gameTime), 180, 475);
 		
 		//if (!tarro.estaHerido()) {
 		// Movimiento del tarro desde teclado
-		tarro.actualizarMovimiento();
+		jugador.actualizarMovimiento();
 		// Caida de la lluvia
-		if (!lluvia.actualizarMovimiento(tarro)) { // Si devuelve false, el juego ha terminado
+		if (!proyectilManager.actualizarMovimiento(jugador)) { // Si devuelve false, el juego ha terminado
 			// Actualizar HigherScore
-			if (game.getHigherScore() < tarro.getPuntos())
-				game.setHigherScore(tarro.getPuntos());
+			if (game.getHigherScore() < jugador.getPuntos())
+				game.setHigherScore(jugador.getPuntos());
 			// Ir a la ventana de fin de juego. Destruir pantalla actual
 			game.setScreen(new GameOverScreen(game));
 			dispose();
@@ -111,19 +113,19 @@ public class GameScreen implements Screen {
 		}
 
 		// Si el nivel terminó, ir a pantalla de nivel completado
-		if (lluvia.isLevelComplete()) {
+		if (proyectilManager.isLevelComplete()) {
 			game.setScreen(new LevelCompleteScreen(game, this, levelManager));
 			dispose();
 			return;
 		}
 		//}
 		
-		tarro.dibujar(batch); // Renderizar el tarro
-		lluvia.actualizarDibujoLluvia(batch); // Renderizar los proyectiles de la lluvia
+		jugador.dibujar(batch); // Renderizar el tarro
+		proyectilManager.actualizarDibujoProyectiles(batch); // Renderizar los proyectiles
 		batch.end();
 
 		// Dibujar hitboxes en modo debug
-		tarro.dibujarHitbox(camera);
+		jugador.dibujarHitbox(camera);
 	}
 
 	@Override
@@ -133,8 +135,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void show() {
-	  	// Continuar con sonido de lluvia
-	  	lluvia.continuar();
+	  	proyectilManager.continuar();
 	}
 
 	@Override
@@ -144,7 +145,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void pause() {
-		lluvia.pausar();
+		proyectilManager.pausar();
 		game.setScreen(new PausaScreen(game, this)); 
 	}
 
@@ -156,7 +157,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		// Liberar recursos
-      	tarro.destruir();
-      	lluvia.destruir();
+      	jugador.destruir();
+      	proyectilManager.destruir();
 	}
 }

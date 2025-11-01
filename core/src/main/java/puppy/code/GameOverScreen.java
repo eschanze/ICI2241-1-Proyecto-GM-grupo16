@@ -2,6 +2,7 @@ package puppy.code;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,6 +14,7 @@ public class GameOverScreen implements Screen {
 	private BitmapFont font;
 	private OrthographicCamera camera;
     private boolean waitingForRelease = true; // evita reactivar inmediatamente si el toque causó la pérdida
+	private float t = 0f;
  
 	public GameOverScreen(final GameLluviaMenu game) {
 		this.game = game;
@@ -24,13 +26,21 @@ public class GameOverScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		ScreenUtils.clear(0, 0, 0.2f, 1);
+		t += delta;
+		ScreenUtils.clear(0f, 0f, 0f, 1f);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 
+		// Efecto "fade"
+		float alpha = 0.8f + 0.2f * (float)Math.sin(t * 1.5f);
+
 		batch.begin();
-		font.draw(batch, "GAME OVER ", 100, 200);
-		font.draw(batch, "Toca en cualquier lado para reiniciar.", 100, 100);
+        font.getData().setScale(3.0f, 3.0f);
+        font.setColor(new Color(0.75f, 0f, 0f, alpha));
+        font.draw(batch, "MORISTE", (camera.viewportWidth / 2f) - 100f, (camera.viewportHeight / 2f) + 70f);
+        font.getData().setScale(2f, 2f);
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Toca para reiniciar", (camera.viewportWidth / 2f) - 125f, (camera.viewportHeight / 2f));
 		batch.end();
 
 
@@ -46,33 +56,10 @@ public class GameOverScreen implements Screen {
 		}
 	}
 
-	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-	}
+    @Override public void show() { }
+    @Override public void resize(int width, int height) { }
+    @Override public void pause() { }
+    @Override public void resume() { }
+    @Override public void hide() { }
+    @Override public void dispose() { }
 }

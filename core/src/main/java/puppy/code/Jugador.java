@@ -10,17 +10,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-// Clase para el tarro que recoge las gotas de lluvia
-public class Tarro {
-	// Variables del tarro
-	private Rectangle bucket; // Área del tarro
-	private Rectangle hitbox; // Área de colisión del tarro
+// Clase para el jugador
+public class Jugador implements Colisionable {
+	// Variables del jugador
+	private Rectangle player; // Área del jugador
+	private Rectangle hitbox; // Área de colisión del jugador
 	private static final float HITBOX_SIZE = 8; // Tamaño de la hitbox cuadrada
 
-	private Texture bucketImage; // Imagen del tarro
+	private Texture playerImage; // Imagen del jugador
 	private Sound sonidoHerido; // Sonido al ser dañado
 	
-	private int vidas = 3; // Vidas iniciales
+	private int vidas = 1; // Vidas iniciales
 	private int puntos = 0; // Puntos iniciales
 	private int velX = 400; // Velocidad de movimiento
 	private float focusMultiplier = 0.4f; // Multiplicador de velocidad al enfocar
@@ -32,13 +32,13 @@ public class Tarro {
     private ShapeRenderer shapeRenderer; // Para dibujar la hitbox en modo debug
     private boolean debugMode = false; // Inicializar modoDebug desactivado, se activa con la tecla D
 	   
-	public Tarro(Texture tex, Sound ss) {
-		bucketImage = tex;
+	public Jugador(Texture tex, Sound ss) {
+		playerImage = tex;
 		sonidoHerido = ss;
 	}
 
 	public Rectangle getArea() {
-		return bucket;
+		return player;
 	}
 
 	public Rectangle getHitbox() {
@@ -62,19 +62,53 @@ public class Tarro {
     }
 	
 	public void crear() {
-		bucket = new Rectangle();
-		bucket.x = (800 / 2) - (128 / 2);
-		bucket.y = 20;
-		bucket.width = 128;
-		bucket.height = 128;
+		player = new Rectangle();
+		player.x = (800 / 2) - (128 / 2);
+		player.y = 20;
+		player.width = 128;
+		player.height = 128;
 
-		// Crear la hitbox ligeramente más pequeña que el tarro
+		// Crear la hitbox ligeramente más pequeña que el jugador
 		hitbox = new Rectangle();
 		actualizarHitbox();
 
 		// Inicializar el ShapeRenderer
 		shapeRenderer = new ShapeRenderer();
 	}
+
+	// Lógica del jugador al colisionar con otro objeto
+    @Override
+    public boolean alColisionar(Colisionable other) {
+		// Si colisiona con un proyectil...
+        if (other instanceof Proyectil) {
+            Proyectil p = (Proyectil) other;
+            
+            switch (p.getTipo()) {
+				// 1: Proyectil normal
+                case 1:
+                    dañar();
+                    break;
+				// 2: "Quieto-daño": daña solo si el jugador está QUIETO
+                case 2:
+                    if (!enMovimiento()) {
+                        dañar();
+                    }
+                    break;
+				// 3: "Mov-daño": daña solo si el tarro está EN MOVIMIENTO
+                case 3:
+                    if (enMovimiento()) {
+                        dañar();
+                    }
+                    break;
+				// 4 (ejemplo): Proyectil "bueno"
+                case 4:
+                default:
+                    sumarPuntos(10);
+                    break;
+            }
+        }
+		return false; // El jugador nunca debe ser removido después de colisionar
+    }
 
 	public void dañar() {
 		vidas--;
@@ -85,9 +119,9 @@ public class Tarro {
 
 	public void dibujar(SpriteBatch batch) {
 		if (!herido)  
-			batch.draw(bucketImage, bucket.x, bucket.y);
+			batch.draw(playerImage, player.x, player.y);
 		else {
-			batch.draw(bucketImage, bucket.x, bucket.y+ MathUtils.random(-5, 5));
+			batch.draw(playerImage, player.x, player.y+ MathUtils.random(-5, 5));
 			tiempoHerido--;
 			if (tiempoHerido <= 0) herido = false;
 		}
@@ -105,8 +139,8 @@ public class Tarro {
 	}
 
 	private void actualizarHitbox() {
-		hitbox.x = bucket.x + (bucket.width - HITBOX_SIZE) / 2 - 16;
-		hitbox.y = bucket.y + (bucket.height - HITBOX_SIZE) / 2 - 16;
+		hitbox.x = player.x + (player.width - HITBOX_SIZE) / 2 - 16;
+		hitbox.y = player.y + (player.height - HITBOX_SIZE) / 2 - 16;
 		hitbox.width = HITBOX_SIZE;
 		hitbox.height = HITBOX_SIZE;
 	}
@@ -133,14 +167,14 @@ public class Tarro {
 		}
 
 		// Aplicar la velocidad, multiplicador, y el tiempo delta
-		bucket.x += moveX * velX * mult * Gdx.graphics.getDeltaTime();
-		bucket.y += moveY * velX * mult * Gdx.graphics.getDeltaTime();
+		player.x += moveX * velX * mult * Gdx.graphics.getDeltaTime();
+		player.y += moveY * velX * mult * Gdx.graphics.getDeltaTime();
 		
 		// Mantener dentro de los límites de la pantalla
-		if(bucket.x < 0) bucket.x = 0;
-		if(bucket.x > 800 - bucket.width) bucket.x = 800 - bucket.width;
-		if(bucket.y < 0) bucket.y = 0;
-		if(bucket.y > 480 - bucket.height) bucket.y = 480 - bucket.height;
+		if(player.x < 0) player.x = 0;
+		if(player.x > 800 - player.width) player.x = 800 - player.width;
+		if(player.y < 0) player.y = 0;
+		if(player.y > 480 - player.height) player.y = 480 - player.height;
 
 		// Actualizar la hitbox
 		actualizarHitbox();
@@ -160,7 +194,7 @@ public class Tarro {
 	}
 
 	public void destruir() {
-		bucketImage.dispose();
+		playerImage.dispose();
 		if (shapeRenderer != null) {
 			shapeRenderer.dispose();
 			shapeRenderer = null;
