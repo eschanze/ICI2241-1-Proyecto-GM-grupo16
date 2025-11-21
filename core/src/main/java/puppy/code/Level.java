@@ -18,7 +18,7 @@ public class Level {
 
     public int getLevelNumber() {
         return levelNumber;
-    }   
+    }
 
     public float getTotalDuration() {
         return totalDuration;
@@ -28,7 +28,7 @@ public class Level {
         this.levelName = name;
     }
 
-    public void setLevelNumber (int number) {
+    public void setLevelNumber(int number) {
         this.levelNumber = number;
     }
 

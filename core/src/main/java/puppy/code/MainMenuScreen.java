@@ -28,10 +28,10 @@ public class MainMenuScreen implements Screen {
         camera.setToOrtho(false, 800, 480);
 
         // Cargar el archivo de música de fondo del menú principal
-		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("menu_ost.mp3"));
-		menuMusic.setLooping(true);
-		menuMusic.setVolume(1f);
-		menuMusic.play();
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("menu_ost.mp3"));
+        menuMusic.setLooping(true);
+        menuMusic.setVolume(1f);
+        menuMusic.play();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MainMenuScreen implements Screen {
         batch.begin();
 
         // Efecto "fade" para el texto del nombre del juego
-        float alpha = 0.675f + 0.325f * (float)Math.sin(t * 2.0f);
+        float alpha = 0.675f + 0.325f * (float) Math.sin(t * 2.0f);
 
         // Texto naranja y grande con el nombre del juego
         font.getData().setScale(6.0f, 6.0f);
@@ -67,26 +67,39 @@ public class MainMenuScreen implements Screen {
         batch.end();
 
         if (Gdx.input.justTouched()) {
-            game.getLevelManager().reset(); // Empezar desde el nivel 1
-            game.setScreen(new GameScreen(game, game.getLevelManager()));
+            LevelManager.getInstance().reset(); // Empezar desde el nivel 1
+            game.setScreen(new GameScreen(game));
             dispose();
         }
     }
 
-    @Override public void show() { }
-    @Override public void resize(int width, int height) { }
-    @Override public void pause() { }
-    @Override public void resume() { }
+    @Override
+    public void show() {
+    }
+
+    @Override
+    public void resize(int width, int height) {
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
 
     @Override
     public void hide() {
         // Detener la música al salir del menú
-        if (menuMusic != null) menuMusic.stop();
+        if (menuMusic != null)
+            menuMusic.stop();
     }
 
     @Override
     public void dispose() {
         // Solo hacer dispose de musicMenu. font y batch compartidos con GameLluviaMenú
-        if (menuMusic != null) menuMusic.dispose();
+        if (menuMusic != null)
+            menuMusic.dispose();
     }
 }

@@ -23,12 +23,13 @@ public class ProyectilManager {
     Texture bulletTex;
     Music backgroundMusic;
 
-    // Sprite del dragón (no hace nada todavía, pero es progreso para la entrega final)
+    // Sprite del dragón (no hace nada todavía, pero es progreso para la entrega
+    // final)
     private Texture magmaDragonTex;
 
     // Tiempo para sumar puntos automáticamente
     private long ultimoTiempoPuntos;
-    
+
     public ProyectilManager(Texture bulletTex, Music backgroundMusic) {
         // Inicializar sonidos
         this.backgroundMusic = backgroundMusic;
@@ -41,7 +42,7 @@ public class ProyectilManager {
         // Cargar textura del dragón
         magmaDragonTex = new Texture(Gdx.files.internal("magma_dragon_256.png"));
     }
-    
+
     // Al inicial el juego, se llama a esta función
     public void crear(Level level) {
         // Inicializar variables
@@ -54,12 +55,13 @@ public class ProyectilManager {
 
         ultimoTiempoPuntos = TimeUtils.millis(); // Iniciar el temporizador de puntos
 
-		// Empezar la reproducción de la música de fondo inmediatamente
+        // Empezar la reproducción de la música de fondo inmediatamente
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
     }
-    
-    // Todos los frames se llama a esta función para actualizar la lógica de los proyectiles
+
+    // Todos los frames se llama a esta función para actualizar la lógica de los
+    // proyectiles
     public boolean actualizarMovimiento(Jugador jugador) {
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
         levelTime += delta;
@@ -79,40 +81,42 @@ public class ProyectilManager {
         for (int i = activePatterns.size - 1; i >= 0; i--) {
             PatronAtaque patron = activePatterns.get(i);
             patron.actualizar(delta, proyectiles);
-            
+
             if (patron.estaCompleto()) {
                 patron.limpiar();
                 activePatterns.removeIndex(i);
             }
         }
 
-        // Verificar si el nivel está completo (para el avance está hardcodeado el "fin")
+        // Verificar si el nivel está completo (para el avance está hardcodeado el
+        // "fin")
         if ((pendingPatterns.size == 0 && activePatterns.size == 0 && proyectiles.size == 0) || (levelTime >= 65f)) {
             levelComplete = true;
         }
-        
+
         // Actualizar proyectiles y verificar colisiones con el tarro
         for (int i = proyectiles.size - 1; i >= 0; i--) {
             Proyectil p = proyectiles.get(i);
             p.actualizar(delta);
-            
+
             // Remover si está fuera de pantalla
             if (p.fueraDePantalla()) {
                 proyectiles.removeIndex(i);
                 continue;
             }
-            
+
             // Verificar colisión con el tarro (Proyectil.hitbox vs Jugador.hitbox)
             if (jugador.colisionaCon(p)) {
                 jugador.alColisionar(p);
-                
+
                 // Revisar si se debería eliminar el proyectil
                 if (p.alColisionar(jugador)) {
                     proyectiles.removeIndex(i);
                 }
-                
+
                 // Revisar si el jugador murió después de la colisión
-                if (jugador.getVidas() <= 0) return false;
+                if (jugador.getVidas() <= 0)
+                    return false;
             }
         }
 
@@ -125,7 +129,7 @@ public class ProyectilManager {
         // Retorna true o false dependiendo si el jugador sigue vivo
         return true;
     }
-    
+
     public void actualizarDibujoProyectiles(SpriteBatch batch) {
         // Dibujar todos los proyectiles de los patrones activos
         for (PatronAtaque patron : activePatterns) {
@@ -138,21 +142,22 @@ public class ProyectilManager {
             batch.draw(magmaDragonTex, x, y);
         }
     }
-    
+
     public void destruir() {
-        //dropSound.dispose();
+        // dropSound.dispose();
         backgroundMusic.dispose();
     }
-    
+
     public void pausar() {
         backgroundMusic.pause();
     }
-    
+
     public void continuar() {
         backgroundMusic.play();
     }
 
-    // Indica si el nivel actual ha terminado (sin patrones pendientes, sin proyectiles activos)
+    // Indica si el nivel actual ha terminado (sin patrones pendientes, sin
+    // proyectiles activos)
     public boolean isLevelComplete() {
         return levelComplete;
     }

@@ -11,13 +11,14 @@ public interface Colisionable {
 
     // Devuelve el área de colisión del objeto
     Rectangle getHitbox();
-    
+
     // Verifica si este objeto colisiona con otro Colisionable
     default boolean colisionaCon(Colisionable other) {
         return this.getHitbox().overlaps(other.getHitbox());
     }
-    
+
     // Acción a realizar al colisionar con otro objeto Colisionable
-    // Retorna un boolean que representa si se debería "consumir" (remover) el objeto al colisionar
+    // Retorna un boolean que representa si se debería "consumir" (remover) el
+    // objeto al colisionar
     boolean alColisionar(Colisionable other);
 }

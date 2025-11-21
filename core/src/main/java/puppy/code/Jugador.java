@@ -19,7 +19,7 @@ public class Jugador implements Colisionable {
 
 	private Texture playerImage; // Imagen del jugador
 	private Sound sonidoHerido; // Sonido al ser dañado
-	
+
 	private int vidas = 1; // Vidas iniciales
 	private int puntos = 0; // Puntos iniciales
 	private int velX = 400; // Velocidad de movimiento
@@ -29,9 +29,9 @@ public class Jugador implements Colisionable {
 	private int tiempoHeridoMax = 50; // i-frames que dura el estado de herido
 	private int tiempoHerido; // Contador de i-frames restantes
 
-    private ShapeRenderer shapeRenderer; // Para dibujar la hitbox en modo debug
-    private boolean debugMode = false; // Inicializar modoDebug desactivado, se activa con la tecla D
-	   
+	private ShapeRenderer shapeRenderer; // Para dibujar la hitbox en modo debug
+	private boolean debugMode = false; // Inicializar modoDebug desactivado, se activa con la tecla D
+
 	public Jugador(Texture tex, Sound ss) {
 		playerImage = tex;
 		sonidoHerido = ss;
@@ -44,7 +44,7 @@ public class Jugador implements Colisionable {
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
-	
+
 	public int getVidas() {
 		return vidas;
 	}
@@ -54,13 +54,13 @@ public class Jugador implements Colisionable {
 	}
 
 	public void sumarPuntos(int pp) {
-		puntos+=pp;
+		puntos += pp;
 	}
 
 	public boolean estaHerido() {
-	   return herido;
-    }
-	
+		return herido;
+	}
+
 	public void crear() {
 		player = new Rectangle();
 		player.x = (800 / 2) - (128 / 2);
@@ -77,38 +77,38 @@ public class Jugador implements Colisionable {
 	}
 
 	// Lógica del jugador al colisionar con otro objeto
-    @Override
-    public boolean alColisionar(Colisionable other) {
+	@Override
+	public boolean alColisionar(Colisionable other) {
 		// Si colisiona con un proyectil...
-        if (other instanceof Proyectil) {
-            Proyectil p = (Proyectil) other;
-            
-            switch (p.getTipo()) {
+		if (other instanceof Proyectil) {
+			Proyectil p = (Proyectil) other;
+
+			switch (p.getTipo()) {
 				// 1: Proyectil normal
-                case 1:
-                    dañar();
-                    break;
+				case 1:
+					dañar();
+					break;
 				// 2: "Quieto-daño": daña solo si el jugador está QUIETO
-                case 2:
-                    if (!enMovimiento()) {
-                        dañar();
-                    }
-                    break;
+				case 2:
+					if (!enMovimiento()) {
+						dañar();
+					}
+					break;
 				// 3: "Mov-daño": daña solo si el tarro está EN MOVIMIENTO
-                case 3:
-                    if (enMovimiento()) {
-                        dañar();
-                    }
-                    break;
+				case 3:
+					if (enMovimiento()) {
+						dañar();
+					}
+					break;
 				// 4 (ejemplo): Proyectil "bueno"
-                case 4:
-                default:
-                    sumarPuntos(10);
-                    break;
-            }
-        }
+				case 4:
+				default:
+					sumarPuntos(10);
+					break;
+			}
+		}
 		return false; // El jugador nunca debe ser removido después de colisionar
-    }
+	}
 
 	public void dañar() {
 		vidas--;
@@ -118,18 +118,21 @@ public class Jugador implements Colisionable {
 	}
 
 	public void dibujar(SpriteBatch batch) {
-		if (!herido)  
+		if (!herido)
 			batch.draw(playerImage, player.x, player.y);
 		else {
-			batch.draw(playerImage, player.x, player.y+ MathUtils.random(-5, 5));
+			batch.draw(playerImage, player.x, player.y + MathUtils.random(-5, 5));
 			tiempoHerido--;
-			if (tiempoHerido <= 0) herido = false;
+			if (tiempoHerido <= 0)
+				herido = false;
 		}
 	}
 
 	public void dibujarHitbox(OrthographicCamera camera) {
-		// Mostrar hitbox si estamos en modo debug OR si el jugador está usando SHIFT (movimiento lento)
-		if (debugMode || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+		// Mostrar hitbox si estamos en modo debug OR si el jugador está usando SHIFT
+		// (movimiento lento)
+		if (debugMode || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+				|| Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
 			shapeRenderer.setProjectionMatrix(camera.combined);
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 			shapeRenderer.setColor(1, 0, 0, 1); // Rojo
@@ -144,21 +147,25 @@ public class Jugador implements Colisionable {
 		hitbox.width = HITBOX_SIZE;
 		hitbox.height = HITBOX_SIZE;
 	}
-	   
-	public void actualizarMovimiento() { 
-        float mult = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ||
-                     Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? focusMultiplier : 1f;
+
+	public void actualizarMovimiento() {
+		float mult = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ||
+				Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? focusMultiplier : 1f;
 
 		// Variables para el movimiento
 		float moveX = 0;
 		float moveY = 0;
 
 		// Movimiento horizontal
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) moveX -= 1;
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) moveX += 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
+			moveX -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+			moveX += 1;
 		// Movimiento vertical
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) moveY -= 1;
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) moveY += 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
+			moveY -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.UP))
+			moveY += 1;
 
 		// Normalizar el movimiento diagonal
 		if (moveX != 0 && moveY != 0) {
@@ -169,12 +176,16 @@ public class Jugador implements Colisionable {
 		// Aplicar la velocidad, multiplicador, y el tiempo delta
 		player.x += moveX * velX * mult * Gdx.graphics.getDeltaTime();
 		player.y += moveY * velX * mult * Gdx.graphics.getDeltaTime();
-		
+
 		// Mantener dentro de los límites de la pantalla
-		if(player.x < 0) player.x = 0;
-		if(player.x > 800 - player.width) player.x = 800 - player.width;
-		if(player.y < 0) player.y = 0;
-		if(player.y > 480 - player.height) player.y = 480 - player.height;
+		if (player.x < 0)
+			player.x = 0;
+		if (player.x > 800 - player.width)
+			player.x = 800 - player.width;
+		if (player.y < 0)
+			player.y = 0;
+		if (player.y > 480 - player.height)
+			player.y = 480 - player.height;
 
 		// Actualizar la hitbox
 		actualizarHitbox();
@@ -183,14 +194,14 @@ public class Jugador implements Colisionable {
 	public boolean enMovimiento() {
 		// El jugador mantiene alguna tecla direccional presionada
 		return Gdx.input.isKeyPressed(Input.Keys.LEFT)
-			|| Gdx.input.isKeyPressed(Input.Keys.RIGHT)
-			|| Gdx.input.isKeyPressed(Input.Keys.UP)
-			|| Gdx.input.isKeyPressed(Input.Keys.DOWN);
+				|| Gdx.input.isKeyPressed(Input.Keys.RIGHT)
+				|| Gdx.input.isKeyPressed(Input.Keys.UP)
+				|| Gdx.input.isKeyPressed(Input.Keys.DOWN);
 	}
 
 	public void iniciarInvulnerabilidad(float segundos) {
 		herido = true;
-		tiempoHerido = (int)(segundos * 60); // Asumiendo 60 FPS
+		tiempoHerido = (int) (segundos * 60); // Asumiendo 60 FPS
 	}
 
 	public void destruir() {

@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements Screen {
 	final GameLluviaMenu game;
-    private OrthographicCamera camera;
+	private OrthographicCamera camera;
 	// Variables globales de dibujo
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -21,46 +21,46 @@ public class GameScreen implements Screen {
 	private Jugador jugador;
 	private ProyectilManager proyectilManager;
 	// Variables de nivel
-	private LevelManager levelManager;
-    private Level currentLevel;
-    private boolean levelWon;
+	// private LevelManager levelManager; // Usamos Singleton ahora
+	private Level currentLevel;
+	private boolean levelWon;
 	// Tiempo de juego
 	private float gameTime = 0f;
 
-	public GameScreen(final GameLluviaMenu game, LevelManager levelManager) {
+	public GameScreen(final GameLluviaMenu game) {
 
 		this.game = game;
-		this.levelManager = levelManager;
-        this.batch = game.getBatch();
-        this.font = game.getFont();
+		// this.levelManager = levelManager;
+		this.batch = game.getBatch();
+		this.font = game.getFont();
 		font.getData().setScale(2f, 2f); // Tamaño del texto durante GameScreen
-	
+
 		// Cargar sónido de daño y el sprite del jugador
 		Sound hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-		jugador = new Jugador(new Texture(Gdx.files.internal("knight.png")),hurtSound);
-         
+		jugador = new Jugador(new Texture(Gdx.files.internal("knight.png")), hurtSound);
+
 		// Cargar imágenes de los proyectiles y soundtrack del nivel
-        Texture bulletTex = new Texture(Gdx.files.internal("fire_bullet.png"));
+		Texture bulletTex = new Texture(Gdx.files.internal("fire_bullet.png"));
 		Texture bullet2Tex = new Texture(Gdx.files.internal("fire_bullet_2.png"));
 		Music levelMusic = Gdx.audio.newMusic(Gdx.files.internal("level1_ost.mp3"));
-		 
+
 		// Crear el ProyectilManager
 		proyectilManager = new ProyectilManager(bulletTex, levelMusic);
-		
+
 		// Camera
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 480);
 		batch = new SpriteBatch();
 
 		// Inicializar LevelManager
-		if (!levelManager.isLoaded()) {
-			levelManager.loadLevels(bulletTex, bullet2Tex);
+		if (!LevelManager.getInstance().isLoaded()) {
+			LevelManager.getInstance().loadLevels(bulletTex, bullet2Tex);
 		}
-		this.currentLevel = levelManager.getCurrentLevel();
+		this.currentLevel = LevelManager.getInstance().getCurrentLevel();
 
 		// Creación de clase jugador
 		jugador.crear();
-		
+
 		// Creación del ProyectilManager
 		proyectilManager.crear(currentLevel);
 	}
@@ -78,7 +78,8 @@ public class GameScreen implements Screen {
 
 		// Toggle debug mode (tecla D)
 		if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-			if (jugador != null) jugador.toggleDebugMode();
+			if (jugador != null)
+				jugador.toggleDebugMode();
 		}
 
 		// Limpia la pantalla con color rojo oscuro
@@ -87,7 +88,7 @@ public class GameScreen implements Screen {
 		// Actualizar matrices de la cámara
 		camera.update();
 
-		// Actualizar 
+		// Actualizar
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 
@@ -97,8 +98,8 @@ public class GameScreen implements Screen {
 		font.draw(batch, "HighScore: " + game.getHigherScore(), 470, 475);
 
 		font.draw(batch, String.format("Tiempo: %.2fs", gameTime), 180, 475);
-		
-		//if (!tarro.estaHerido()) {
+
+		// if (!tarro.estaHerido()) {
 		// Movimiento del tarro desde teclado
 		jugador.actualizarMovimiento();
 		// Caida de la lluvia
@@ -114,12 +115,12 @@ public class GameScreen implements Screen {
 
 		// Si el nivel terminó, ir a pantalla de nivel completado
 		if (proyectilManager.isLevelComplete()) {
-			game.setScreen(new LevelCompleteScreen(game, this, levelManager));
+			game.setScreen(new LevelCompleteScreen(game, this));
 			dispose();
 			return;
 		}
-		//}
-		
+		// }
+
 		jugador.dibujar(batch); // Renderizar el tarro
 		proyectilManager.actualizarDibujoProyectiles(batch); // Renderizar los proyectiles
 		batch.end();
@@ -135,7 +136,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void show() {
-	  	proyectilManager.continuar();
+		proyectilManager.continuar();
 	}
 
 	@Override
@@ -146,7 +147,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void pause() {
 		proyectilManager.pausar();
-		game.setScreen(new PausaScreen(game, this)); 
+		game.setScreen(new PausaScreen(game, this));
 	}
 
 	@Override
@@ -157,7 +158,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		// Liberar recursos
-      	jugador.destruir();
-      	proyectilManager.destruir();
+		jugador.destruir();
+		proyectilManager.destruir();
 	}
 }
