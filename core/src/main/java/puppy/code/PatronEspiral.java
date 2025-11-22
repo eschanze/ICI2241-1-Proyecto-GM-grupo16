@@ -20,20 +20,13 @@ public class PatronEspiral extends PatronAtaque {
     }
 
     @Override
-    public void actualizar(float delta, Array<Proyectil> proyectiles) {
-        tiempoTranscurrido += delta;
-        ultimoDisparo += delta;
-
+    protected void actualizarPatron(float delta) {
         // Rotar el patrón base
         anguloActual += velocidadRotacion * delta;
-
-        if (ultimoDisparo >= intervaloDisparo) {
-            dispararEspiral(proyectiles);
-            ultimoDisparo = 0;
-        }
     }
 
-    private void dispararEspiral(Array<Proyectil> proyectiles) {
+    @Override
+    protected void disparar(Array<Proyectil> proyectiles) {
         float anguloEntreBrazos = 360f / numBrazos;
 
         for (int i = 0; i < numBrazos; i++) {

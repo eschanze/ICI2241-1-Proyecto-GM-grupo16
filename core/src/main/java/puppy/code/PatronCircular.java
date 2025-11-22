@@ -18,20 +18,13 @@ public class PatronCircular extends PatronAtaque {
     }
 
     @Override
-    public void actualizar(float delta, Array<Proyectil> proyectiles) {
-        tiempoTranscurrido += delta;
-        ultimoDisparo += delta;
-
+    protected void actualizarPatron(float delta) {
         // Rotar el patrón con el tiempo
         anguloOffset += velocidadRotacionOffset * delta;
-
-        if (ultimoDisparo >= intervaloDisparo) {
-            dispararCirculo(proyectiles);
-            ultimoDisparo = 0;
-        }
     }
 
-    private void dispararCirculo(Array<Proyectil> proyectiles) {
+    @Override
+    protected void disparar(Array<Proyectil> proyectiles) {
         float anguloIncremento = 360f / numBalas;
 
         for (int i = 0; i < numBalas; i++) {

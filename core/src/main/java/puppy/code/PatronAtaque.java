@@ -5,11 +5,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-// Clase abstracta para definir patrones de ataque
-// Proporciona una estructura base para diferentes patrones de ataque que pueden ser implementados por subclases.
-// Es una buena práctica usar una clase abstracta aquí ya que todos los patrones de ataque comparten ciertos atributos y métodos comunes,
-// pero cada patrón específico tendrá su propia lógica de actualización y clonación.
-// Por todo esto, se cumple con el requisito GM1.4
+// Clase abstracta que centraliza la lógica común de los ataques, cumpliendo con el uso de herencia (GM1.4).
+// Implementa el patrón Template Method (GM2.2) para estandarizar el ciclo de actualización,
+// delegando la implementación específica a las subclases.
 public abstract class PatronAtaque {
     // Atributos comunes a todos los patrones
     protected float tiempoTranscurrido;
@@ -65,8 +63,28 @@ public abstract class PatronAtaque {
         // Implementación base vacía
     }
 
-    // Métodos abstractos que deben ser implementados por las subclases
-    public abstract void actualizar(float delta, Array<Proyectil> proyectiles);
+    // Template Method
+    // Define el esqueleto del algoritmo (los pasos a seguir)
+    public final void actualizar(float delta, Array<Proyectil> proyectiles) {
+        tiempoTranscurrido += delta;
+        ultimoDisparo += delta;
+
+        // Paso variable: Actualización específica del patrón
+        actualizarPatron(delta);
+
+        // Paso común: Verificación de disparo
+        if (ultimoDisparo >= intervaloDisparo) {
+            // Paso variable: Lógica específica de disparo
+            disparar(proyectiles);
+            ultimoDisparo = 0;
+        }
+    }
+
+    // Métodos abstractos (Hooks/Operations) que deben ser implementados por las
+    // subclases
+    protected abstract void actualizarPatron(float delta);
+
+    protected abstract void disparar(Array<Proyectil> proyectiles);
 
     public abstract PatronAtaque clone();
 }

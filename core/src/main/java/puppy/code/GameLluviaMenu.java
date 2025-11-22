@@ -9,7 +9,6 @@ public class GameLluviaMenu extends Game {
 	private SpriteBatch batch;
 	private BitmapFont font;
 	private int higherScore; // Variable global para almacenar la puntuación más alta
-	// private LevelManager levelManager;
 
 	public void create() {
 		batch = new SpriteBatch();
