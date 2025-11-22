@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 // Clase para el jugador
-public class Jugador implements Colisionable {
+public class Jugador {
 	// Variables del jugador
 	private Rectangle player; // Área del jugador
 	private Rectangle hitbox; // Área de colisión del jugador
@@ -76,38 +76,9 @@ public class Jugador implements Colisionable {
 		shapeRenderer = new ShapeRenderer();
 	}
 
-	// Lógica del jugador al colisionar con otro objeto
-	@Override
-	public boolean alColisionar(Colisionable other) {
-		// Si colisiona con un proyectil...
-		if (other instanceof Proyectil) {
-			Proyectil p = (Proyectil) other;
-
-			switch (p.getTipo()) {
-				// 1: Proyectil normal
-				case 1:
-					dañar();
-					break;
-				// 2: "Quieto-daño": daña solo si el jugador está QUIETO
-				case 2:
-					if (!enMovimiento()) {
-						dañar();
-					}
-					break;
-				// 3: "Mov-daño": daña solo si el tarro está EN MOVIMIENTO
-				case 3:
-					if (enMovimiento()) {
-						dañar();
-					}
-					break;
-				// 4 (ejemplo): Proyectil "bueno"
-				case 4:
-				default:
-					sumarPuntos(10);
-					break;
-			}
-		}
-		return false; // El jugador nunca debe ser removido después de colisionar
+	// Lógica de colisión
+	public boolean colisionaCon(Proyectil p) {
+		return this.hitbox.overlaps(p.getHitbox());
 	}
 
 	public void dañar() {

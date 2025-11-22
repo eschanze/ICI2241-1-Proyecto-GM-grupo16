@@ -32,7 +32,26 @@ public class PatronCircular extends PatronAtaque {
             float vx = MathUtils.cos(angulo) * velocidadBala;
             float vy = MathUtils.sin(angulo) * velocidadBala;
 
-            proyectiles.add(new Proyectil(origenX, origenY, vx, vy, tipo, texturaBala));
+            EstrategiaColision estrategia;
+            switch (tipo) {
+                case 1:
+                    estrategia = new ColisionNormal();
+                    break;
+                case 2:
+                    estrategia = new ColisionQuietoDano();
+                    break;
+                case 3:
+                    estrategia = new ColisionMovimientoDano();
+                    break;
+                case 4:
+                    estrategia = new ColisionCurativa();
+                    break;
+                default:
+                    estrategia = new ColisionNormal();
+                    break;
+            }
+
+            proyectiles.add(new Proyectil(origenX, origenY, vx, vy, estrategia, texturaBala));
         }
     }
 

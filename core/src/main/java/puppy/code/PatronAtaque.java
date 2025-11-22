@@ -5,9 +5,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-// Clase abstracta que centraliza la lógica común de los ataques, cumpliendo con el uso de herencia (GM1.4).
-// Implementa el patrón Template Method (GM2.2) para estandarizar el ciclo de actualización,
-// delegando la implementación específica a las subclases.
+/**
+ * Clase abstracta que centraliza la lógica común de los ataques, cumpliendo con
+ * el uso de herencia (GM1.4).
+ * También se implementa el patrón Template Method (GM2.2), en la función actualizar(...).
+ */
 public abstract class PatronAtaque {
     // Atributos comunes a todos los patrones
     protected float tiempoTranscurrido;
@@ -63,8 +65,13 @@ public abstract class PatronAtaque {
         // Implementación base vacía
     }
 
-    // Template Method
-    // Define el esqueleto del algoritmo (los pasos a seguir)
+    /**
+     * Template Method (GM2.2)
+     * Define el esqueleto del algoritmo de actualización de patrones de ataque.
+     * Los pasos comunes (temporización) están implementados aquí, mientras que
+     * los pasos específicos (actualizarPatron, disparar) se delegan a las
+     * subclases.
+     */
     public final void actualizar(float delta, Array<Proyectil> proyectiles) {
         tiempoTranscurrido += delta;
         ultimoDisparo += delta;

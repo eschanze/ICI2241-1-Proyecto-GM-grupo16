@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
- * LevelManager utiliza el patrín Singleton (GM2.1)
+ * LevelManager utiliza el patrón Singleton (GM2.1)
  * Garantiza una única instancia del gestor de niveles en toda la aplicación
  * y proporciona un punto de acceso global a ella.
  */

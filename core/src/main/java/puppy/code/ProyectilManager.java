@@ -107,8 +107,6 @@ public class ProyectilManager {
 
             // Verificar colisión con el tarro (Proyectil.hitbox vs Jugador.hitbox)
             if (jugador.colisionaCon(p)) {
-                jugador.alColisionar(p);
-
                 // Revisar si se debería eliminar el proyectil
                 if (p.alColisionar(jugador)) {
                     proyectiles.removeIndex(i);

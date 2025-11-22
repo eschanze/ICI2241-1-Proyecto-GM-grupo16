@@ -4,17 +4,23 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Proyectil implements Colisionable {
+/**
+ * Contexto del patrón Strategy (GM2.3)
+ * Esta clase delega el comportamiento de colisión a una estrategia intercambiable.
+ * Esto permite que diferentes proyectiles tengan diferentes efectos al colisionar
+ * sin necesidad de crear subclases de Proyectil.
+ */
+public class Proyectil {
     private Rectangle area;
     private Rectangle hitbox; // Área de colisión del proyectil
     private static final float HITBOX_SIZE = 8; // Tamaño de la hitbox cuadrada
     public float velocidadX;
     public float velocidadY;
-    public int tipo; // 1 = dañino, 2 = bueno
+    private EstrategiaColision estrategia; // Estrategia de colisión
     public Texture textura;
 
     // Constructor
-    public Proyectil(float x, float y, float vx, float vy, int tipo, Texture tex) {
+    public Proyectil(float x, float y, float vx, float vy, EstrategiaColision estrategia, Texture tex) {
         // Area es para dibujar el sprite (usa el tamaño de la textura)
         area = new Rectangle(x, y, tex.getWidth(), tex.getHeight());
 
@@ -23,10 +29,10 @@ public class Proyectil implements Colisionable {
         float offsetY = (tex.getHeight() - HITBOX_SIZE) / 2;
         hitbox = new Rectangle(x + offsetX, y + offsetY, HITBOX_SIZE, HITBOX_SIZE);
 
-        // Velocidades, tipo, y textura
+        // Velocidades, estrategia, y textura
         velocidadX = vx;
         velocidadY = vy;
-        this.tipo = tipo;
+        this.estrategia = estrategia;
         textura = tex;
     }
 
@@ -38,10 +44,6 @@ public class Proyectil implements Colisionable {
         return hitbox;
     }
 
-    public int getTipo() {
-        return tipo;
-    }
-
     // Función auxiliar para obtener la rotación en grados basada en la velocidad
     // La usamos para rotar el sprite del proyectil al dibujarlo, basado en su
     // dirección de movimiento
@@ -49,26 +51,9 @@ public class Proyectil implements Colisionable {
         return MathUtils.atan2(velocidadY, velocidadX) * MathUtils.radiansToDegrees;
     }
 
-    // Lógica del proyectil al colisionar con otro objeto
-    @Override
-    public boolean alColisionar(Colisionable other) {
-        if (other instanceof Jugador) {
-            // Si colisiona con el jugador...
-            Jugador Jugador = (Jugador) other;
-
-            switch (tipo) {
-                case 1: // Proyectil normal
-                    return true;
-                case 2: // Quieto-daño
-                    return !Jugador.enMovimiento();
-                case 3: // Mov-daño
-                    return Jugador.enMovimiento();
-                case 4: // Bueno
-                default:
-                    return true;
-            }
-        }
-        return false;
+    // Lógica del proyectil al colisionar con el jugador
+    public boolean alColisionar(Jugador jugador) {
+        return estrategia.alColisionar(jugador);
     }
 
     // Actualizar la posición del proyectil
