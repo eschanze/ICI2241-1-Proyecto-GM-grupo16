@@ -20,7 +20,7 @@ public class Jugador {
 	private Texture playerImage; // Imagen del jugador
 	private Sound sonidoHerido; // Sonido al ser dañado
 
-	private int vidas = 1; // Vidas iniciales
+	private int vidas = 3; // Vidas iniciales
 	private int puntos = 0; // Puntos iniciales
 	private int velX = 400; // Velocidad de movimiento
 	private float focusMultiplier = 0.4f; // Multiplicador de velocidad al enfocar

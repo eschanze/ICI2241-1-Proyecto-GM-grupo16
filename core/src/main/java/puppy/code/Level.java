@@ -7,6 +7,7 @@ public class Level {
     private int levelNumber;
     private Array<PatronTimeline> patronTimelines = new Array<PatronTimeline>();
     private float totalDuration; // en segundos
+    private Jefe jefe; // Jefe del nivel
 
     public Array<PatronTimeline> getPatronSequence() {
         return patronTimelines;
@@ -34,5 +35,13 @@ public class Level {
 
     public void addPatron(PatronTimeline patronTimeline) {
         patronTimelines.add(patronTimeline);
+    }
+
+    public Jefe getJefe() {
+        return jefe;
+    }
+
+    public void setJefe(Jefe jefe) {
+        this.jefe = jefe;
     }
 }
